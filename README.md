@@ -11,4 +11,4 @@ This backend was made as a part of a group project within bachelor studies and i
 
 1. Clone backend repository to your (I)DE.
 2. Make a copy of `_config.properties` named `config.properties` and add a portnumber you want to run the server on. (i.e 8000 or 8080)
-3. Run `.\gradlew runShadow` in terminal.
+3. Run `.\gradlew runShadow` in terminal. (within root of cloned folder)
