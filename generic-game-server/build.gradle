@@ -1,0 +1,47 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
+
+    implementation "io.vertx:vertx-web:4.3.4"
+    implementation "io.vertx:vertx-config:4.3.4"
+    implementation "io.vertx:vertx-web-openapi:4.3.4"
+
+    testImplementation "io.vertx:vertx-junit5:4.3.4"
+    testImplementation "io.vertx:vertx-web-client:4.3.4"
+
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.13.4.2'
+
+
+    // Needed to compile the missing classes.
+    implementation "io.vertx:vertx-codegen:4.3.4"
+
+    // FIX WARNING : Can not find io.netty.resolver.dns.macos.MacOSDnsServerAddressStreamProvider
+    // https://stackoverflow.com/questions/69481239/can-not-find-io-netty-resolver-dns-macos-macosdnsserveraddressstreamprovider
+    runtimeOnly 'io.netty:netty-all:4.1.86.Final'
+
+    implementation project(':vertx-web-bearer')
+}
+
+test {
+    useJUnitPlatform()
+}
+
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+
+

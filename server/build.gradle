@@ -1,0 +1,78 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'jacoco'
+    id("org.sonarqube") version "4.4.1.3373"
+
+    // https://imperceptiblethoughts.com/shadow
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+}
+
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+test {
+    finalizedBy jacocoTestReport // report is always generated after tests run
+}
+
+jacocoTestReport {
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
+
+    implementation "io.vertx:vertx-web:4.3.4"
+    implementation "io.vertx:vertx-config:4.3.4"
+    implementation "io.vertx:vertx-web-openapi:4.3.4"
+
+    testImplementation "io.vertx:vertx-junit5:4.3.4"
+    testImplementation "io.vertx:vertx-web-client:4.3.4"
+
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.13.4.2'
+
+
+    // Needed to compile the missing classes.
+    implementation "io.vertx:vertx-codegen:4.3.4"
+
+    // FIX WARNING : Can not find io.netty.resolver.dns.macos.MacOSDnsServerAddressStreamProvider
+    // https://stackoverflow.com/questions/69481239/can-not-find-io-netty-resolver-dns-macos-macosdnsserveraddressstreamprovider
+    runtimeOnly 'io.netty:netty-all:4.1.86.Final'
+
+    implementation project(':vertx-web-bearer')
+    implementation project(':generic-game-server')
+}
+
+test {
+    useJUnitPlatform()
+}
+
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+mainClassName='io.vertx.core.Launcher'
+def mainVerticleName = 'game.StartUp'
+
+shadowJar {
+    archiveClassifier.set('fat')
+    manifest {
+        attributes 'Main-Verticle': "$mainVerticleName"
+    }
+    mergeServiceFiles {
+        include 'META-INF/services/io.vertx.core.spi.VerticleFactory'
+    }
+}
+
+run {
+    args = ['run', mainVerticleName, "--launcher-class=$mainClassName"]
+}

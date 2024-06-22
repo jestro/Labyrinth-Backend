@@ -1,0 +1,606 @@
+openapi: '3.0.0'
+info:
+  title: Labyrinth
+  description: This is the openAPI specification for the labyrinth
+  version: '0.0.1'
+servers:
+  - url: http://localhost:8008
+    description: Local API
+paths:
+  /info:
+    get:
+      operationId: get-info
+      summary: Get API information
+      tags:
+        - General
+      responses:
+        200:
+          description: OK
+  /treasures:
+    get:
+      operationId: get-treasures
+      summary: Get a list of treasures
+      tags:
+        - General
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+  /games:
+    get:
+      tags:
+        - Game Management
+      operationId: get-games
+      summary: Get a list of games running on the server.
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: prefix
+          required: true
+        - schema:
+            type: boolean
+          in: query
+          name: onlyAccepting
+          description: 'When set to true, only the games that are still accepting players will be returned. When set to false, the games that are not accepting players will also be returned, this is the default value'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    gameId:
+                      type: string
+                    gameName:
+                      type: string
+                    minimumPlayers:
+                      type: integer
+                    maximumPlayers:
+                      type: integer
+                    players:
+                      type: array
+                      items:
+                        type: string
+                    started:
+                      type: boolean
+                    gameMode:
+                      type: string
+                      enum:
+                        - simple
+                        - teleport
+                        - hardcore
+                        - async
+    post:
+      tags:
+        - Game Management
+      operationId: create-game
+      summary: Create a new game
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                prefix:
+                  type: string
+                  minLength: 1
+                gameName:
+                  type: string
+                  minLength: 1
+                playerName:
+                  type: string
+                  minLength: 1
+                gameMode:
+                  type: string
+                  enum:
+                    - simple
+                    - teleport
+                    - hardcore
+                minimumPlayers:
+                  type: integer
+                  minimum: 2
+                maximumPlayers:
+                  type: integer
+                  minimum: 2
+                numberOfTreasuresPerPlayer:
+                    type: integer
+                    minimum: 1
+                mazeRows:
+                  type: integer
+                  minimum: 3
+                mazeCols:
+                  type: integer
+                  minimum: 3
+              required:
+                - prefix
+                - playerName
+                - gameName
+      responses:
+        200:
+          $ref: "#/components/responses/gameJoined"
+        201:
+          $ref: "#/components/responses/gameJoined"
+        409:
+          description: You tried to do something which is against the rules.
+    delete:
+      tags:
+        - General
+      operationId: delete-games
+      summary: Delete all games
+      responses:
+        200:
+          description: OK
+      security:
+        - playerToken: []
+  /games/{gameId}:
+    parameters:
+      - schema:
+          type: string
+        name: gameId
+        in: path
+        required: true
+      - schema:
+          type: boolean
+          default: true
+        name: description
+        in: query
+        required:
+          false
+      - schema:
+          type: boolean
+          default: false
+        name: players
+        in: query
+        required: false
+      - schema:
+          type: boolean
+          default: false
+        name: maze
+        in: query
+        required: false
+      - schema:
+          type: boolean
+          default: false
+        name: spareTile
+        in: query
+        required: false
+      - schema:
+          type: boolean
+          default: false
+        name: history
+        in: query
+        required: false
+      - schema:
+          type: boolean
+          default: false
+        name: initialMaze
+        in: query
+        required: false
+    get:
+      tags:
+        - Game Management
+      operationId: get-game-details
+      summary: Get the details of a single game
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  game:
+                    $ref: "#/components/schemas/game"
+                  players:
+                    type: object
+                    additionalProperties:
+                      $ref: "#/components/schemas/player"
+                  maze:
+                    $ref: "#/components/schemas/maze"
+                  spareTile:
+                    $ref: "#/components/schemas/tile"
+                  history:
+                    type: array
+                    items:
+                      oneOf:
+                        - $ref: "#/components/schemas/moveAction"
+                        - $ref: "#/components/schemas/shoveAction"
+                  initialMaze:
+                    $ref: "#/components/schemas/maze"
+        404:
+          description: The game you are looking for does not exist. Double check the id.
+      security:
+        - playerToken: []
+  /games/{gameId}/maze:
+    parameters:
+      - schema:
+          type: string
+        name: gameId
+        in: path
+        required: true
+    patch:
+      tags:
+        - Game Actions
+      operationId: shove-tile
+      summary: Shove a tile into the maze
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                destination:
+                  $ref: "#/components/schemas/location"
+                tile:
+                  $ref: "#/components/schemas/tile"
+              required:
+                - destination
+                - tile
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  maze:
+                    $ref: "#/components/schemas/maze"
+                  spareTile:
+                    $ref: "#/components/schemas/tile"
+        401:
+          description: This is a protected endpoint. Make sure you passed your security-token along with the request.
+        403:
+          description: This is a protected endpoint. Make sure the security-token you passed along is a valid token for this game.
+        404:
+          description: The game you are looking for does not exist. Double check the id.
+        409:
+          description: You tried to do something which is against the rules of labyrinth.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  failure:
+                    type: integer
+                  cause:
+                    type: string
+                example: {"failure": 409, "cause": "Only the current player can change the maze"}
+      security:
+        - playerToken: []
+  /games/{gameId}/maze/locations/{row}/{col}:
+    parameters:
+      - schema:
+          type: string
+        name: gameId
+        in: path
+        required: true
+      - schema:
+          type: number
+        name: row
+        in: path
+        required: true
+      - schema:
+          type: number
+        name: col
+        in: path
+        required: true
+    get:
+      tags:
+        - Game Actions
+      operationId: get-reachable-locations
+      summary: Get all reachable locations starting from a given location
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reachable:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/location"
+        401:
+          description: This is a protected endpoint. Make sure you passed your security-token along with the request.
+        403:
+          description: This is a protected endpoint. Make sure the security-token you passed along is a valid token for this game.
+        404:
+          description: The game you are looking for does not exist. Double check the id.
+      security:
+        - playerToken: []
+  /games/{gameId}/players/{playerName}:
+    parameters:
+      - schema:
+          type: string
+        name: gameId
+        in: path
+        required: true
+      - schema:
+          type: string
+        name: playerName
+        in: path
+        required: true
+    get:
+      tags:
+        - Game Actions
+      operationId: get-player-details
+      summary: Get the details of a single player
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/playerWithObjective"
+        401:
+          description: This is a protected endpoint. Make sure you passed your security-token along with the request.
+        403:
+          description: This is a protected endpoint. Make sure the security-token you passed along is a valid token for this game.
+        404:
+          description: The player you are looking for does not exist within the given game. Double check the gameId and playerName
+      security:
+        - playerToken: []
+    post:
+      tags:
+        - Game Management
+      operationId: join-game
+      summary: Join a game
+      responses:
+        201:
+          $ref: "#/components/responses/gameJoined"
+        404:
+          description: The game you are looking for does not exist. Double check the id.
+        409:
+          description: You cannot join this game, the number of players is already at its maximum.
+    delete:
+      tags:
+        - Game Management
+      operationId: leave-game
+      summary: Leave a game
+      responses:
+        200:
+          description: OK
+        404:
+          description: The game you are looking for does not exist. Double check the id.
+      security:
+        - playerToken: [ ]
+  /games/{gameId}/players/{playerName}/location:
+    parameters:
+      - schema:
+          type: string
+        name: gameId
+        in: path
+        required: true
+      - schema:
+          type: string
+        name: playerName
+        in: path
+        required: true
+    patch:
+      tags:
+        - Game Actions
+      operationId: move-player
+      summary: Move a single player
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                destination:
+                  $ref: "#/components/schemas/location"
+              required:
+                - destination
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/playerWithObjective"
+        401:
+          description: This is a protected endpoint. Make sure you passed your security-token along with the request.
+        403:
+          description: This is a protected endpoint. Make sure the security-token you passed along is a valid token for this game.
+        404:
+          description: The game you are looking for does not exist. Double check the id.
+        409:
+          description: You tried to do something which is against the rules of labyrinth.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  failure:
+                    type: integer
+                  cause:
+                    type: string
+                example: {"failure": 409, "cause": "Only the current player can move"}
+      security:
+        - playerToken: []
+components:
+  securitySchemes:
+    playerToken:
+      type: http
+      scheme: bearer
+  schemas:
+    tile:
+      description: Represents a single tile
+      type: object
+      properties:
+        walls:
+          type: array
+          items:
+            type: boolean
+        treasure:
+          type: string
+          nullable: true
+        players:
+          type: array
+          items:
+            type: string
+          nullable: true
+      required:
+        - walls
+        - treasure
+    maze:
+      description: Represents the maze
+      type: object
+      properties:
+        rows:
+          type: number
+        cols:
+          type: number
+        board:
+          type: array
+          items:
+            type: array
+            items:
+              $ref: "#/components/schemas/tile"
+      required:
+        - rows
+        - cols
+        - board
+    player:
+      description: Contains player information available for everyone
+      type: object
+      properties:
+        name:
+          type: string
+        location:
+          $ref: "#/components/schemas/location"
+        treasuresFound:
+          description: A list of collected treasures
+          type: array
+          items:
+            type: string
+            nullable: true
+        state:
+          description: A description of the current state of the player.
+          type: string
+          enum:
+            - waiting
+            - playing
+            - won
+            - left
+            - lost
+      required:
+        - name
+        - treasures
+        - state
+    playerWithObjective:
+      description: Contains player information available for the player requesting it
+      allOf:
+        - $ref: '#/components/schemas/player'
+        - type: object
+          properties:
+            objective:
+              description: The treasure you should be looking for
+              type: string
+          required:
+            - objective
+    game:
+      description: Represents a single game
+      type: object
+      properties:
+        gameId:
+          type: string
+        gameName:
+          type: string
+        gameMode:
+          type: string
+          enum:
+            - simple
+            - teleport
+            - hardcore
+        currentShovePlayer:
+          type: string
+          nullable: true
+        currentMovePlayer:
+          type: string
+          nullable: true
+        minNumberOfPlayers:
+          type: integer
+        maxNumberOfPlayers:
+          type: integer
+        numberOfTreasuresPerPlayer:
+          type: integer
+        players:
+          type: array
+          items:
+            type: string
+      required:
+        - gameId
+        - gameName
+        - gameMode
+        - players
+        - minNumberOfPlayers
+        - maxNumberOfPlayers
+        - currentShovePlayer
+        - currentMovePlayer
+        - numberOfTreasuresPerPlayer
+    location:
+      type: object
+      properties:
+        row:
+          type: integer
+        col:
+          type: integer
+      required:
+        - row
+        - col
+    moveAction:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - move
+        player:
+          type: string
+        source:
+            $ref: "#/components/schemas/location"
+        destination:
+          $ref: "#/components/schemas/location"
+    shoveAction:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - shove
+        player:
+          type: string
+        destination:
+            $ref: "#/components/schemas/location"
+  responses:
+    gameJoined:
+      description: Response when creating/joining a game
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              gameId:
+                type: string
+              playerName:
+                type: string
+              playerToken:
+                type: string
+tags:
+  - name: Game Actions
+  - name: Game Management
+  - name: General
