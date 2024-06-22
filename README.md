@@ -1,7 +1,7 @@
 # Labyrinth Backend
 
 A backend for a web application game made with Java and Gradle.
-This backend was made as a part of a group project within bachelor studies and is meant to simulate games of [Labyrinth](https://www.ravensburger.org/ca-en/discover/labyrinth/index.html).
+This backend was made as a part of a group project within bachelor studies and is meant to simulate games of [Labyrinth](https://www.ravensburger.org/ca-en/discover/labyrinth/index.html) together with the [frontend](https://github.com/jestro/Labyrinth-Frontend).
 
 ## Dependencies
 
