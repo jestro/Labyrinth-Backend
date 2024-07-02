@@ -7,8 +7,10 @@ import framework.web.views.response.ResponseWithHiddenStatus;
 public class JoinGameResponse extends ResponseWithHiddenStatus {
     @JsonProperty
     private final String gameId;
+
     @JsonProperty
     private final String playerName;
+
     @JsonProperty
     private final String playerToken;
 

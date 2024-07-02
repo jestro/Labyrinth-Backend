@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import framework.web.views.response.ResponseWithHiddenStatus;
 
 public class FailureResponse  extends ResponseWithHiddenStatus {
-
     @JsonProperty
     @SuppressWarnings({"unused", "FieldCanBeLocal"})
     private final String cause;
@@ -12,6 +11,7 @@ public class FailureResponse  extends ResponseWithHiddenStatus {
     @JsonProperty("failure")
     @SuppressWarnings({"unused", "FieldCanBeLocal"})
     private final int failureCode;
+
     public FailureResponse(int status, String cause) {
         super(status);
         this.failureCode = status;
