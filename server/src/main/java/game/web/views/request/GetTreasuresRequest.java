@@ -10,5 +10,4 @@ public class GetTreasuresRequest extends ContextBasedRequestView {
     public GetTreasuresRequest(RoutingContext ctx) {
         super(ctx);
     }
-
 }
