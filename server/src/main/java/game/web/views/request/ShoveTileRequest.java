@@ -7,23 +7,11 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 
 public class ShoveTileRequest extends ContextBasedRequestView {
-
-    private final int row;
-    private final int col;
-    private final Tile tile;
+    private final JsonObject json;
 
     public ShoveTileRequest(RoutingContext ctx) {
         super(ctx);
-        JsonObject json  = ctx.body().asJsonObject();
-        row = json.getJsonObject("destination").getInteger("row");
-        col = json.getJsonObject("destination").getInteger("col");
-
-        boolean[] walls = new boolean[4];
-        JsonArray jsonWalls = json.getJsonObject("tile").getJsonArray("walls");
-        for (int i = 0; i < walls.length; i++) {
-            walls[i] = jsonWalls.getBoolean(i);
-        }
-        tile = new Tile(walls);
+        json = ctx.body().asJsonObject();
     }
 
     public String getGameId() {
@@ -31,14 +19,19 @@ public class ShoveTileRequest extends ContextBasedRequestView {
     }
 
     public int getRow() {
-        return row;
+        return json.getJsonObject("destination").getInteger("row");
     }
 
     public int getCol() {
-        return col;
+        return json.getJsonObject("destination").getInteger("col");
     }
 
     public Tile getTile() {
-        return tile;
+        boolean[] walls = new boolean[4];
+        JsonArray jsonWalls = json.getJsonObject("tile").getJsonArray("walls");
+        for (int i = 0; i < walls.length; i++) {
+            walls[i] = jsonWalls.getBoolean(i);
+        }
+        return new Tile(walls);
     }
 }

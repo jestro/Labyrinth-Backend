@@ -7,66 +7,46 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 
 public class CreateGameRequest extends ContextBasedRequestView {
-    private final String prefix;
-    private final SafeString gameName;
-    private final SafeString playerName;
-    private final GameMode gameMode;
-    private final int maxPlayers;
-    private final int mazeRows;
-    private final int mazeCols;
-    private final int numberOfTreasuresPerPlayer;
+    private final JsonObject json;
 
     public CreateGameRequest(RoutingContext ctx) {
         super(ctx);
-        JsonObject json = ctx.body().asJsonObject();
-        prefix = json.getString("prefix");
-        gameName = new SafeString(json.getString("gameName"));
-        playerName = new SafeString(json.getString("playerName"));
-        gameMode = GameMode.gameModes.get(json.getString("gameMode"));
-        maxPlayers = json.getInteger("maximumPlayers");
-
-        Integer tempCols;
-        Integer tempRows;
-        tempRows = json.getInteger("mazeRows");
-        tempCols = json.getInteger("mazeCols");
-        if (tempRows == null) tempRows = 7;
-        if (tempCols == null) tempCols = 7;
-
-        mazeRows = tempRows;
-        mazeCols = tempCols;
-
-        numberOfTreasuresPerPlayer = json.getInteger("numberOfTreasuresPerPlayer");
+        json = ctx.body().asJsonObject();
     }
 
     public String getPrefix() {
-        return prefix;
+        return json.getString("prefix");
     }
 
     public SafeString getGameName() {
-        return gameName;
+        return new SafeString(json.getString("gameName"));
     }
 
     public SafeString getPlayerName() {
-        return playerName;
+        return new SafeString(json.getString("playerName"));
     }
 
     public GameMode getGameMode() {
-        return gameMode;
+        return GameMode.gameModes.get(json.getString("gameMode"));
     }
 
     public int getMaxPlayers() {
-        return maxPlayers;
+        return json.getInteger("maximumPlayers");
     }
 
     public int getMazeRows() {
-        return mazeRows;
+        Integer tempRows = json.getInteger("mazeRows");
+        if (tempRows == null) tempRows = 7;
+        return tempRows;
     }
 
     public int getMazeCols() {
-        return mazeCols;
+        Integer tempCols = json.getInteger("mazeCols");
+        if (tempCols == null) tempCols = 7;
+        return tempCols;
     }
 
     public int getNumberOfTreasuresPerPlayer() {
-        return numberOfTreasuresPerPlayer;
+        return json.getInteger("numberOfTreasuresPerPlayer");
     }
 }

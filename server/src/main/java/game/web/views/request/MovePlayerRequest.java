@@ -5,15 +5,11 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 
 public class MovePlayerRequest extends ContextBasedRequestView {
-
-    private final int row;
-    private final int col;
+    private final JsonObject json;
 
     public MovePlayerRequest(RoutingContext ctx) {
         super(ctx);
-        JsonObject json  = ctx.body().asJsonObject();
-        row = json.getJsonObject("destination").getInteger("row");
-        col = json.getJsonObject("destination").getInteger("col");
+        json = ctx.body().asJsonObject();
     }
 
     public String getGameId() {
@@ -25,10 +21,10 @@ public class MovePlayerRequest extends ContextBasedRequestView {
     }
 
     public int getRow() {
-        return row;
+        return json.getJsonObject("destination").getInteger("row");
     }
 
     public int getCol() {
-        return col;
+        return json.getJsonObject("destination").getInteger("col");
     }
 }
