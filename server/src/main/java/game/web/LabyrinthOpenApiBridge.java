@@ -4,6 +4,7 @@ import framework.web.OpenApiBridge;
 import framework.web.Operation;
 import framework.web.views.response.ResponseWithHiddenStatus;
 import game.logic.*;
+import game.logic.exceptions.LabyrinthResourceNotFoundException;
 import game.web.views.request.*;
 import game.web.views.response.*;
 import game.logic.util.SafeString;

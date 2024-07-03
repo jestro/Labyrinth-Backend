@@ -1,5 +1,6 @@
 package logic;
 
+import game.logic.exceptions.LabyrinthResourceNotFoundException;
 import game.logic.util.SafeString;
 
 import game.logic.*;

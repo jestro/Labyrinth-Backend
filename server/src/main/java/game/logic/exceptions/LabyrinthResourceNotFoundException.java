@@ -1,4 +1,4 @@
-package game.logic;
+package game.logic.exceptions;
 
 import framework.logic.GameResourceNotFoundException;
 

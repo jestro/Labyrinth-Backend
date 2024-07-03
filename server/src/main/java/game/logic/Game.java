@@ -1,5 +1,6 @@
 package game.logic;
 
+import game.logic.exceptions.LabyrinthResourceNotFoundException;
 import game.logic.util.SafeString;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
