@@ -60,18 +60,16 @@ class LabyrinthServiceTest {
     @Test
     void testDeleteGames() {
         TestUtils.createPlayingGame("deleteGames");
-        boolean isAuthorized = testService.deleteGames("PentestingForce1");
+        testService.deleteGames("PentestingForce1");
 
-        assertTrue(isAuthorized);
         assertTrue(Game.getGames().isEmpty());
     }
 
     @Test
     void testCanDeleteGames() {
         TestUtils.createPlayingGame("deleteGames");
-        boolean isAuthorized = testService.deleteGames("Random");
 
-        assertFalse(isAuthorized);
+        assertThrows(IllegalStateException.class, () -> testService.deleteGames("Random"));
         assertFalse(Game.getGames().isEmpty());
     }
 
@@ -134,21 +132,21 @@ class LabyrinthServiceTest {
     }
 
     @Test
-    void testGetPlayerDetails() {
+    void testGetPlayer() {
         String gameId = testService.createGameAndReturnId("group13", new SafeString("getPlayerDetails"), GameMode.SIMPLE, 2, 1, 7, 7);
         testService.joinGame(gameId, new SafeString("Player1"));
 
         assertDoesNotThrow(()-> {
-            testService.getPlayerDetails(gameId, "Player1");
+            testService.getPlayer(gameId, "Player1");
         });
     }
 
     @Test
-    void testCanGetPlayerDetails() {
+    void testCanGetPlayer() {
         String gameId = testService.createGameAndReturnId("group13", new SafeString("canGetPlayerDetails"), GameMode.SIMPLE, 2, 1, 7, 7);
         testService.joinGame(gameId, new SafeString("Player1"));
 
-        assertThrows(LabyrinthResourceNotFoundException.class, ()-> testService.getPlayerDetails(gameId, "Nobody"));
+        assertThrows(LabyrinthResourceNotFoundException.class, ()-> testService.getPlayer(gameId, "Nobody"));
     }
 
     @Test

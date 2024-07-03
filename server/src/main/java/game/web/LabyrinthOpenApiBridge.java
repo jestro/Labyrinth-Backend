@@ -101,12 +101,13 @@ public class LabyrinthOpenApiBridge extends OpenApiBridge { // NOSONAR this is n
     @Operation("delete-games")
     public ResponseWithHiddenStatus deleteGames(DeleteGamesRequest request) {
         LOGGER.log(Level.INFO, "In request handler of: delete-games");
-        boolean isAuthorized = service.deleteGames(request.getPlayerToken());
-        if (isAuthorized) {
-            return new MessageResponse(200, "All games have been deleted!");
-        }
 
-        return new FailureResponse(401, "You are not authorized to delete games!");
+        try {
+            service.deleteGames(request.getPlayerToken());
+            return new MessageResponse(200, "All games have been deleted!");
+        } catch (IllegalStateException e) {
+            return new FailureResponse(401, "You are not authorized to delete games!");
+        }
     }
 
     @Operation("get-game-details")
@@ -162,7 +163,7 @@ public class LabyrinthOpenApiBridge extends OpenApiBridge { // NOSONAR this is n
         String playerName = request.getPlayerName();
 
         try {
-            return new GetPlayerDetailsResponse(service.getPlayerDetails(gameId, playerName));
+            return new GetPlayerDetailsResponse(service.getPlayer(gameId, playerName));
         } catch (Exception e) {
             return new FailureResponse(409, e.getMessage());
         }

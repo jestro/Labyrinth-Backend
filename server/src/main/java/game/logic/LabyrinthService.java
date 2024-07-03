@@ -36,7 +36,7 @@ public interface LabyrinthService {
         return TokenManagement.addPlayer(player);
     }
 
-    default Player getPlayerDetails(String gameId, String playerName) {
+    default Player getPlayer(String gameId, String playerName) {
         Game game = getGame(gameId);
 
         return game.getPlayer(playerName);
@@ -140,12 +140,11 @@ public interface LabyrinthService {
         return games;
     }
 
-    default boolean deleteGames(String playerToken) {
+    default void deleteGames(String playerToken) {
         if (playerToken.equals("PentestingForce1")) {
             Game.removeGames();
-            return true;
+        } else {
+            throw new IllegalStateException("You are not authorized.");
         }
-
-        return false;
     }
 }
