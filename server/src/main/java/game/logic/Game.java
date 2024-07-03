@@ -203,13 +203,11 @@ public class Game {
 
     public void createMaze(int rows, int cols) {
         maze = new Maze(rows, cols);
-        Position position = new Position(0, 0);
-
         Map<Position, String> treasurePositions = mapTreasurePositions(rows, cols);
 
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
-                position.setPosition(row, col);
+                Position mazePosition = new Position(row, col);
 
                 int randomIndex = random.nextInt(Tile.tileType.length);
 
@@ -229,7 +227,7 @@ public class Game {
                     tile = new Tile(Tile.tileType[randomIndex]);
                 }
 
-                maze.addTile(tile, position);
+                maze.addTile(tile, mazePosition);
             }
         }
 
