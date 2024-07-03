@@ -266,14 +266,20 @@ public class Game {
     public void loadPlayers() {
         int i = 0;
         for (Player player : this.players) {
+            player.setPlayerState(PlayerState.PLAYING);
+            setRandomObjective(player);
             if (i % 4 == 0) {
                 maze.getTile(0, 0).addPlayer(player);
+                player.setLocation(new Position(0, 0));
             } else if (i % 4 == 1) {
                 maze.getTile(0, maze.getCols() - 1).addPlayer(player);
+                player.setLocation(new Position(0, maze.getCols() - 1));
             } else if (i % 4 == 2) {
                 maze.getTile(maze.getRows() - 1, 0).addPlayer(player);
+                player.setLocation(new Position(maze.getRows() - 1, 0));
             } else if (i % 4 == 3) {
                 maze.getTile(maze.getRows() - 1, maze.getCols() - 1).addPlayer(player);
+                player.setLocation(new Position(maze.getRows() - 1, maze.getCols() - 1));
             }
             i++;
         }
@@ -320,7 +326,7 @@ public class Game {
 
         collectTreasure(treasureOnTarget, getCurrentMovePlayer());
 
-        checkAndEndGame();
+        if (getCurrentMovePlayer().getTreasuresFound().size() == treasuresRequired) endGame();
 
         switchTurn();
     }
@@ -379,39 +385,17 @@ public class Game {
         currentMovePlayer = null;
     }
 
-    public void checkAndEndGame() {
-        if (getCurrentMovePlayer().getTreasuresFound().size() == treasuresRequired) {
-            for (Player player : this.players) {
-                player.setPlayerState(PlayerState.LOST);
-            }
-            getCurrentMovePlayer().setPlayerState(PlayerState.WON);
-        }
-    }
-
-    public void loadPlayerStateAndLocation() {
-        int i = 0;
+    public void endGame() {
         for (Player player : this.players) {
-            player.setPlayerState(PlayerState.PLAYING);
-            setRandomObjective(player);
-            if (i % 4 == 0) {
-                player.setLocation(new Position(0, 0));
-            } else if (i % 4 == 1) {
-                player.setLocation(new Position(0, maze.getCols() - 1));
-            } else if (i % 4 == 2) {
-                player.setLocation(new Position(maze.getRows() - 1, 0));
-            } else if (i % 4 == 3) {
-                player.setLocation(new Position(maze.getRows() - 1, maze.getCols() - 1));
-            }
-
-            i++;
+            player.setPlayerState(PlayerState.LOST);
         }
+        getCurrentMovePlayer().setPlayerState(PlayerState.WON);
     }
 
     public void startGame() {
         createMaze(mazeRows, mazeCols);
-        loadPlayerStateAndLocation();
-
         loadPlayers();
+
         this.currentShovePlayer = this.players.get(0);
     }
 
